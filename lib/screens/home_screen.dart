@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/add_shortcut_modal.dart';
 
 class HomeScreen extends StatelessWidget{
   @override
@@ -32,7 +33,7 @@ class HomeScreen extends StatelessWidget{
                 SizedBox(height: 12),
                 GestureDetector(
                   onTap: () {
-                    print('Home Shortcut Added');
+                    addShortcutModal(context, 'Home', Icons.home);
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -56,7 +57,7 @@ class HomeScreen extends StatelessWidget{
                 SizedBox(height: 12),
                 GestureDetector(
                   onTap: () {
-                    print('Home Shortcut Added');
+                    addShortcutModal(context, 'Work', Icons.work);
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
