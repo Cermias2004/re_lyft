@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './custom_header.dart';
 
 void addShortcutModal(BuildContext context, String label, IconData icon) {
   showModalBottomSheet(
@@ -7,22 +8,13 @@ void addShortcutModal(BuildContext context, String label, IconData icon) {
     builder: (context) => Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Stack(
-                children: [
-                  Center(child: Text('Add $label')),
-                  Positioned(
-                    left: 0,
-                    child: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ],
+              CustomHeader(
+                title: 'Add $label',
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               Container(
                 decoration: BoxDecoration(
@@ -31,7 +23,7 @@ void addShortcutModal(BuildContext context, String label, IconData icon) {
                 child: Row(
                   children: [
                     Icon(icon),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: TextField(
                         decoration: InputDecoration(

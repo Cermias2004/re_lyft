@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './screens/account_screen.dart';
-import './screens/home_screen.dart';
+import './features/account/account_screen.dart';
+import './features/home/home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,15 +37,11 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int _currentIndex = 0;
-  String _searchBar = '';
 
-  final List<Widget> _screens = [
-    HomeScreen(),
-    AccountScreen(),
-  ];
+  final List<Widget> _screens = [HomeScreen(), AccountScreen()];
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
