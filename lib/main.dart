@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 import './features/account/account_screen.dart';
 import './features/home/home_screen.dart';
+import 'package:provider/provider.dart';
+import './core/theme/theme_manager.dart';
 
 void main() {
-  runApp(MyApp());
+  
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeManager(),
+      child: MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.grey[900],
-        primaryColor: Colors.pink,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.grey[600],
-          foregroundColor: Colors.white,
-        ),
-        iconTheme: IconThemeData(color: Colors.pink),
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white),
-        ),
-      ),
-      home: MainApp(),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: themeManager.currentTheme,
+          home: MainApp(),
+        );
+      }
     );
   }
 }
+
 
 class MainApp extends StatefulWidget {
   @override
