@@ -3,15 +3,24 @@ import '../../shared/widgets/custom_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class EmailSettings extends StatefulWidget {
-  const EmailSettings({super.key});
+class AddShortcutModal extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final String fieldName;
+
+  const AddShortcutModal({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.fieldName,
+  });
 
   @override
-  State<EmailSettings> createState() => _EmailSettingsState();
+  State<AddShortcutModal> createState() => _AddShortcutModalState();
 }
 
-class _EmailSettingsState extends State<EmailSettings> {
-  final _emailController = TextEditingController();
+class _AddShortcutModalState extends State<AddShortcutModal> {
+  final _addressController = TextEditingController();
 
   @override
   void initState() {
@@ -21,7 +30,7 @@ class _EmailSettingsState extends State<EmailSettings> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -30,7 +39,15 @@ class _EmailSettingsState extends State<EmailSettings> {
     final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final userData = doc.data();
 
-    _emailController.text = userData?['email'] ?? '';
+    _addressController.text = userData?[widget.fieldName] ?? '';
+  }
+
+  void _saveUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+      widget.fieldName: _addressController.text,
+    });
+    Navigator.pop(context);
   }
 
   @override
@@ -40,9 +57,10 @@ class _EmailSettingsState extends State<EmailSettings> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CustomHeader(title: 'Email Settings'),
+              CustomHeader(
+                title: 'Add ${widget.label}',
+              ),
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
@@ -50,13 +68,13 @@ class _EmailSettingsState extends State<EmailSettings> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.email),
+                    Icon(widget.icon),
                     const SizedBox(width: 8),
                     Flexible(
                       child: TextField(
-                        controller: _emailController,
+                        controller: _addressController,
                         decoration: InputDecoration(
-                          hintText: ('Email Address'),
+                          hintText: ('Add Address'),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(8),
@@ -66,6 +84,10 @@ class _EmailSettingsState extends State<EmailSettings> {
                     ),
                   ],
                 ),
+              ),
+              ElevatedButton(
+                onPressed: _saveUserData,
+                child: const Text('Save'),
               ),
             ],
           ),

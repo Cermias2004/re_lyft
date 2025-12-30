@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
+import '../../shared/widgets/location_input_row.dart';
 
 void destinationSelectModal(BuildContext context, String label) {
   showModalBottomSheet(
@@ -22,7 +23,7 @@ void destinationSelectModal(BuildContext context, String label) {
                 ),
                 child: Column(
                   children: [
-                    _LocationInputRow(
+                    LocationInputRow(
                       label: 'Start',
                       icon: Icons.donut_small_rounded,
                     ),
@@ -31,7 +32,7 @@ void destinationSelectModal(BuildContext context, String label) {
                       thickness: 1,
                       color: Colors.white,
                     ),
-                    _LocationInputRow(
+                    LocationInputRow(
                       label: 'Destination',
                       icon: Icons.donut_small_sharp,
                     ),
@@ -44,36 +45,4 @@ void destinationSelectModal(BuildContext context, String label) {
       ),
     ),
   );
-}
-
-class _LocationInputRow extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _LocationInputRow({
-    required this.label,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const SizedBox(width: 2),
-        Icon(icon),
-        const SizedBox(width: 8),
-        Flexible(
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: (label),
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

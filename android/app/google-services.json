@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "493520320034",
+    "project_id": "my-cool-project-rl",
+    "storage_bucket": "my-cool-project-rl.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493520320034:android:5922dcd1ee659bf3b5fc7b",
+        "android_client_info": {
+          "package_name": "com.example.customer_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1zbRHO-evgw6VN5mXWM9b07dXXrolSrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

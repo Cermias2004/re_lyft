@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
 import '../../shared/widgets/navigation_tile.dart';
-import '../../shared/widgets/add_shortcut_modal.dart';
+import '../rides/add_shortcut_modal.dart';
 import './email_settings.dart';
 import './name_settings.dart';
 import './phone_settings.dart';
 import './dark_mode_settings.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -48,12 +48,22 @@ class SettingsScreen extends StatelessWidget {
                 );
               }),
               const SizedBox(width: 12),
-              NavigationTile(icon: Icons.home, label: 'Home', onTap: () => addShortcutModal(context, 'Home', Icons.home)),
+              NavigationTile(icon: Icons.home, label: 'Home', onTap: () => showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (context) => AddShortcutModal(label: 'Home', icon: Icons.home, fieldName: 'homeAddress',),
+                )
+              ),
               const SizedBox(width: 12),
-              NavigationTile(icon: Icons.work, label: 'Work', onTap: () => addShortcutModal(context, 'Work', Icons.work)),
+              NavigationTile(icon: Icons.work, label: 'Work', onTap: () => showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (context) => AddShortcutModal(label: 'Work', icon: Icons.work, fieldName: 'workAddress'),
+              )),
               const SizedBox(width: 12),
-              NavigationTile(icon: Icons.exit_to_app_sharp, label: 'Log out', onTap: () {
-                // Implement logout functionality here
+              NavigationTile(icon: Icons.exit_to_app_sharp, label: 'Log out', onTap: () async{
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                await FirebaseAuth.instance.signOut();
               }),
             ]
           )

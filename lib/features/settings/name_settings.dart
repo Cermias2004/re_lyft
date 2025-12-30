@@ -1,8 +1,49 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class NameSettings extends StatelessWidget {
+class NameSettings extends StatefulWidget {
   const NameSettings({super.key});
+
+  @override
+  State<NameSettings> createState() => _NameSettingsState();
+}
+
+class _NameSettingsState extends State<NameSettings> {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    super.dispose();
+  }
+
+  void loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    final userData = doc.data();
+
+    _firstNameController.text = userData?['firstName'] ?? '';
+    _lastNameController.text = userData?['lastName'] ?? '';
+  }
+
+  void _saveUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
+      'firstName': _firstNameController.text,
+      'lastName': _lastNameController.text,
+    }, SetOptions(merge: true));
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +66,7 @@ class NameSettings extends StatelessWidget {
                     const SizedBox(width: 8),
                     Flexible(
                       child: TextField(
+                        controller: _firstNameController,
                         decoration: InputDecoration(
                           hintText: ('First Name'),
                           border: OutlineInputBorder(
@@ -48,6 +90,7 @@ class NameSettings extends StatelessWidget {
                     const SizedBox(width: 8),
                     Flexible(
                       child: TextField(
+                        controller: _lastNameController,
                         decoration: InputDecoration(
                           hintText: ('Last Name'),
                           border: OutlineInputBorder(
@@ -59,6 +102,10 @@ class NameSettings extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              ElevatedButton(
+                onPressed: _saveUserData,
+                child: const Text('Save')
               ),
             ],
           ),
