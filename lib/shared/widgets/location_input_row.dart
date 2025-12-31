@@ -11,7 +11,8 @@ class LocationInputRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return 
+    Row(
       children: [
         const SizedBox(width: 2),
         Icon(icon),

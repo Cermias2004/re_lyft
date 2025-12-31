@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
 import '../../shared/widgets/location_input_row.dart';
+import '../rides/ride_select_screen.dart';
 
-void destinationSelectModal(BuildContext context, String label) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    builder: (context) => Scaffold(
+class DestinationSelectModal extends StatefulWidget {
+  final String label;
+  const DestinationSelectModal({
+    required this.label,
+  });
+
+  @override
+  State<DestinationSelectModal> createState() => _DestinationSelectModalState();
+}
+class _DestinationSelectModalState extends State<DestinationSelectModal> {
+  final _pickupController = TextEditingController();
+  final _destinationController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pickupController.dispose();
+    _destinationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               CustomHeader(
-                title: label
+                title: widget.label
               ),
               const SizedBox(height: 24),
               Container(
@@ -23,26 +42,63 @@ void destinationSelectModal(BuildContext context, String label) {
                 ),
                 child: Column(
                   children: [
-                    LocationInputRow(
-                      label: 'Start',
-                      icon: Icons.donut_small_rounded,
+                    Row(
+                      children: [
+                        const SizedBox(width: 2),
+                        Icon(Icons.donut_small_rounded),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: TextField(
+                            controller: _pickupController,
+                            decoration: InputDecoration(
+                              hintText: 'Start',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const Divider(
                       height: 1,
                       thickness: 1,
                       color: Colors.white,
                     ),
-                    LocationInputRow(
-                      label: 'Destination',
-                      icon: Icons.donut_small_sharp,
+                    Row(
+                      children: [
+                        const SizedBox(width: 2),
+                        Icon(Icons.donut_small_sharp),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: TextField(
+                            controller: _destinationController,
+                            decoration: InputDecoration(
+                              hintText: 'Destination',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                onPressed:() => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RideSelectScreen(destinationAddress: _destinationController.text, pickupAddress: _pickupController.text,)),
+                ),
+                icon: Icon(Icons.check),
               ),
             ],
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

@@ -48,7 +48,11 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () => destinationSelectModal(context, 'Destination'),
+                  onTap: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => DestinationSelectModal(label: 'Destination'),
+                  ),
                   child: AbsorbPointer(
                     child: TextField(
                       decoration: InputDecoration(
@@ -62,8 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
-                  onPressed: () =>
-                      destinationSelectModal(context, 'Schedule Ahead'),
+                  onPressed: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => DestinationSelectModal(label: 'Schedule Ahead'),
+                  ),
                   child: const Text('Schedule Ahead'),
                 ),
                 const SizedBox(height: 12),
