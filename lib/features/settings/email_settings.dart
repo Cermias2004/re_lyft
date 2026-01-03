@@ -12,6 +12,7 @@ class EmailSettings extends StatefulWidget {
 
 class _EmailSettingsState extends State<EmailSettings> {
   final _emailController = TextEditingController();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -31,46 +32,88 @@ class _EmailSettingsState extends State<EmailSettings> {
     final userData = doc.data();
 
     _emailController.text = userData?['email'] ?? '';
+    setState(() => isLoading=false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return Wrap(
+      children: [
+        if(isLoading)
+          Center(
+            child: CircularProgressIndicator(color: Color(0xFFFF00BF))
+          )
+        else
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const CustomHeader(title: 'Email Settings'),
-              const SizedBox(height: 24),
               Container(
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.purple, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.email),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          hintText: ('Email Address'),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
+              const SizedBox(height: 20),
+              Text(
+                'Change email',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: '@gmail.com',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: InputBorder.none,
+                    icon: Icon(Icons.email, color: Colors.grey[800]),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFF00BF),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
+      ]
     );
   }
 }

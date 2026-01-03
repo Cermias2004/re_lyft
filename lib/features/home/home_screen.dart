@@ -12,8 +12,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String? _firstName;
   String? homeAddress;
   String? workAddress;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -29,141 +31,251 @@ class _HomeScreenState extends State<HomeScreen> {
         .get();
     final userData = doc.data();
 
+    if (!mounted) return;
+
     setState(() {
+      _firstName = userData?['firstName'] ?? '';
       homeAddress = userData?['homeAddress'];
       workAddress = userData?['workAddress'];
+      _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lyft')),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => DestinationSelectModal(label: 'Destination'),
-                  ),
-                  child: AbsorbPointer(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Where To',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
+      backgroundColor: Color(0xFF2D2D3A),
+      body: Stack(
+        children: [
+          // Bottom layer: vertical fade to grey
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Color(0xFF2D2D3A),
+                ],
+                stops: [0.2, 0.5],
+              ),
+            ),
+          ),
+          // Top layer: horizontal purple to pink
+          Container(
+            height:250,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF6B48FF),
+                  Color(0xFFFF00BF),
+                  Colors.transparent,
+                ],
+                stops: [0.0, 0.4, 1.0],
+              ),
+            ),
+          ),
+          // Content
+          SafeArea(
+            child: _isLoading
+                ? Center(
+                    child: CircularProgressIndicator(color: Color(0xFFFF00BF)),
+                  )
+                : Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        Text(
+                          'Nice to see you, $_firstName',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () => showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) =>
+                                DestinationSelectModal(label: 'Destination'),
+                          ),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF3D3D4A),
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.search,
+                                  size: 24,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Where are you going?',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (context) => DestinationSelectModal(
+                                  label: 'Schedule Ahead',
+                                ),
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF3D3D4A),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      size: 18,
+                                      color: Colors.grey[300],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Schedule ahead',
+                                      style: TextStyle(
+                                        color: Colors.grey[300],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        _buildShortcutTile(
+                          icon: Icons.home,
+                          label: 'Home',
+                          hasAddress:
+                              homeAddress != null && homeAddress!.isNotEmpty,
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) => AddShortcutModal(
+                                fieldName: 'homeAddress',
+                                icon: Icons.home,
+                                label: 'Home',
+                              ),
+                            );
+                            _loadUserData();
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildShortcutTile(
+                          icon: Icons.work,
+                          label: 'Work',
+                          hasAddress:
+                              workAddress != null && workAddress!.isNotEmpty,
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) => AddShortcutModal(
+                                fieldName: 'workAddress',
+                                icon: Icons.work,
+                                label: 'Work',
+                              ),
+                            );
+                            _loadUserData();
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        Text(
+                          'You are here',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF3D3D4A),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Map placeholder',
+                                style: TextStyle(color: Colors.grey[500]),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => DestinationSelectModal(label: 'Schedule Ahead'),
-                  ),
-                  child: const Text('Schedule Ahead'),
-                ),
-                const SizedBox(height: 12),
-                _ShortcutTile(
-                  icon: Icons.home,
-                  label: 'Home',
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => AddShortcutModal(
-                      label: 'Home',
-                      icon: Icons.home,
-                      fieldName: 'homeAddress',
-                    ),
-                  ),
-                  showAddShortcut: homeAddress == null || homeAddress!.isEmpty,
-                ),
-                const SizedBox(height: 12),
-                _ShortcutTile(
-                  icon: Icons.work,
-                  label: 'Work',
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => AddShortcutModal(
-                      label: 'Work',
-                      icon: Icons.work,
-                      fieldName: 'workAddress',
-                    ),
-                  ),
-                  showAddShortcut: workAddress == null || workAddress!.isEmpty,
-                ),
-              ],
-            ),
-
-            Column(
-              children: [
-                const Text(
-                  'You Are Here',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(child: Text('Map will go here')),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class _ShortcutTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool showAddShortcut;
-
-  const _ShortcutTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.showAddShortcut,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildShortcutTile({
+    required IconData icon,
+    required String label,
+    required bool hasAddress,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon),
-          const SizedBox(width: 12),
+          Icon(icon, color: Color(0xFFFF00BF), size: 24),
+          const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              if (showAddShortcut)
-                Text(
-                  'Add Shortcut',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
+              ),
+              if(hasAddress)
+              Text(
+                'Add shortcut',
+                style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+              ),
             ],
           ),
         ],

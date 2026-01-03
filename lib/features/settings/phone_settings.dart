@@ -11,6 +11,7 @@ class PhoneSettings extends StatefulWidget {
 }
 class _PhoneSettingsState extends State<PhoneSettings> {
   final _phoneNumberController = TextEditingController();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -30,57 +31,95 @@ class _PhoneSettingsState extends State<PhoneSettings> {
     final userData = doc.data();
 
     _phoneNumberController.text = userData?['phoneNumber'] ?? '';
+    setState(() => isLoading=false);
   }
 
   void _saveUserData() async {
     final user = FirebaseAuth.instance.currentUser;
-    await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+    await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
       'phoneNumber': _phoneNumberController.text,
     });
     Navigator.pop(context);
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return Wrap(
+      children: [
+        if(isLoading)
+          Center(
+            child: CircularProgressIndicator(color: Color(0xFFFF00BF))
+          )
+        else
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const CustomHeader(title: 'Phone Settings'),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Change number',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 24),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.purple, width: 1),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.phone),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: TextField(
-                        controller: _phoneNumberController,
-                        decoration: InputDecoration(
-                          hintText: ('Phone Number'),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                child: TextField(
+                  controller: _phoneNumberController,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: 'xxx-xxx-xxxx',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: InputBorder.none,
+                    icon: Icon(Icons.phone, color: Colors.grey[800]),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveUserData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFF00BF),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                  ),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: _saveUserData,
-                child: const Text('Save'),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
+      ]
     );
   }
 }

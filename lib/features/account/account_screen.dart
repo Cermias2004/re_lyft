@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/settings_screen.dart';
 import '../settings/help_screen.dart';
-import '../notifications/notifications_screen.dart';
 import '../rides/ride_history_screen.dart';
 import '../payments/payment_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +16,7 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   String? _firstName;
   String? _lastName;
-
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -32,64 +31,108 @@ class _AccountScreenState extends State<AccountScreen> {
         .get();
     final userData = doc.data();
 
+    if(!mounted) return;
+
     setState(() {
       _firstName = userData?['firstName'] ?? '';
       _lastName = userData?['lastName'] ?? '';
+      isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Account')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      backgroundColor: Color(0xFF2D2D3A),
+      body: SafeArea(
+        child: isLoading 
+          ? Center(child: CircularProgressIndicator(color: Color(0xFFFF00BF))) 
+          : SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[700],
+                      child: Icon(Icons.person, size: 50, color: Colors.white)
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF7B61FF)
+                        ),
+                        child: Icon(Icons.camera_alt, size: 12, color: Colors.white)
+                      )
+                    )
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '$_firstName $_lastName',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('Account'),
+                _buildListTile(Icons.history, 'Ride history', RideHistoryScreen()),
+                _buildListTile(Icons.payment, 'Payments', PaymentScreen()),
+                _buildListTile(Icons.help_outline, 'Help', HelpScreen()),
+                _buildListTile(Icons.settings, 'Settings', SettingsScreen()),
+              ]
+            )
+          )
+      )
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListTile(IconData icon, String label, Widget onTap) {
+    return InkWell(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => onTap)
+        );
+        _loadUserData();
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
           children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person_3_sharp),
-            ),
-            const SizedBox(height: 12),
-             Text('$_firstName $_lastName', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () {
-                print('WOW SO COOL GUY');
-              },
-              child: const Text('CLosed down uwu', style: TextStyle(fontSize: 12)),
-            ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Account',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Icon(icon, color: Colors.grey[400], size: 24),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
               ),
             ),
-            const SizedBox(height: 12),
-            _buildAccountButton(context, Icons.notifications, 'Notifications', NotificationsScreen()),
-            _buildAccountButton(context, Icons.history, 'Ride History', RideHistoryScreen()),
-            _buildAccountButton(context, Icons.payment, 'Payment', PaymentScreen()),
-            _buildAccountButton(context, Icons.help, 'Help', HelpScreen()),
-            _buildAccountButton(context, Icons.settings, 'Settings', SettingsScreen()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountButton(BuildContext context, IconData icon, String label, Widget destination) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      onTap: () async{
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => destination)
-        );
-        _loadUserData();
-      },
-    );
-  }
 }

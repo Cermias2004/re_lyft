@@ -13,6 +13,7 @@ class NameSettings extends StatefulWidget {
 class _NameSettingsState extends State<NameSettings> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _NameSettingsState extends State<NameSettings> {
 
     _firstNameController.text = userData?['firstName'] ?? '';
     _lastNameController.text = userData?['lastName'] ?? '';
+    setState(() => isLoading=false);
   }
 
   void _saveUserData() async {
@@ -42,75 +44,112 @@ class _NameSettingsState extends State<NameSettings> {
       'firstName': _firstNameController.text,
       'lastName': _lastNameController.text,
     }, SetOptions(merge: true));
+    if(!mounted) return;
     Navigator.pop(context);
   }
 
+  
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+    return Wrap(
+      children: [
+        if(isLoading)
+          Center(
+            child: CircularProgressIndicator(color: Color(0xFFFF00BF))
+          )
+        else
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const CustomHeader(title: 'Name Settings'),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Change name',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 24),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.purple, width: 1),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.person),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: TextField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(
-                          hintText: ('First Name'),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: TextField(
+                  controller: _firstNameController,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: 'first name',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: InputBorder.none,
+                    icon: Icon(Icons.person, color: Colors.grey[800]),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.purple, width: 1),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.person),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: TextField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(
-                          hintText: ('Last Name'),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                child: TextField(
+                  controller: _lastNameController,
+                  keyboardType: TextInputType.datetime,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: 'last name',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: InputBorder.none,
+                    icon: Icon(Icons.person, color: Colors.grey[800]),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveUserData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFF00BF),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                  ),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: _saveUserData,
-                child: const Text('Save')
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
+      ]
     );
   }
+
+
+  
 }

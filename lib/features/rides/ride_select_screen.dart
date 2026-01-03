@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../payments/payment_screen.dart';
 
 class RideSelectScreen extends StatefulWidget {
   final String pickupAddress;
@@ -161,7 +162,7 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                     child: Row(
                       children: [
                         ElevatedButton(
-                          onPressed: () => {},
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen())),
                           child: Text("money"),
                         ),
                         Spacer(),
