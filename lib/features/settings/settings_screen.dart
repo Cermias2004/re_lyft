@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
-import '../../shared/widgets/navigation_tile.dart';
 import '../rides/add_shortcut_modal.dart';
 import './email_settings.dart';
 import './name_settings.dart';
@@ -8,9 +7,12 @@ import './phone_settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Column(
           children: [
@@ -119,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon),
+            Icon(icon, color: isDestructive ? Colors.red : Color(0xFFFF00BF)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

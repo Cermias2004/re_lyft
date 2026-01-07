@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RideHistoryScreen extends StatefulWidget {
+  const RideHistoryScreen({super.key});
+
   @override
   State<RideHistoryScreen> createState() => _RideHistoryScreenState();
 }
@@ -38,6 +40,7 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Column(
           children: [

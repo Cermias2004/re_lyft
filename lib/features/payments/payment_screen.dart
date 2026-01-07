@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../shared/widgets/custom_header.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
+
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
@@ -264,8 +267,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              _getCardIcon(card['type']),
+                            FaIcon(_getCardIcon(card['type']),
                               color: Colors.grey[800],
                               size: 32,
                             ),
@@ -339,13 +341,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   IconData _getCardIcon(String? type) {
     switch (type) {
       case 'visa':
-        return Icons.credit_card;
+        return FontAwesomeIcons.ccVisa;
       case 'mastercard':
-        return Icons.credit_card;
+        return FontAwesomeIcons.ccMastercard;
       case 'amex':
-        return Icons.credit_card;
+        return FontAwesomeIcons.ccAmex;
       default:
-        return Icons.credit_card;
+        return FontAwesomeIcons.creditCard;
     }
   }
 

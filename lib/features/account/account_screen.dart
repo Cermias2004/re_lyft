@@ -107,12 +107,12 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildListTile(IconData icon, String label, Widget onTap) {
+  Widget _buildListTile(IconData icon, String label, Widget destination) {
     return InkWell(
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => onTap)
+          MaterialPageRoute(builder: (context) => destination)
         );
         _loadUserData();
       },

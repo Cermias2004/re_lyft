@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../shared/widgets/custom_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -30,6 +29,8 @@ class _PhoneSettingsState extends State<PhoneSettings> {
     final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final userData = doc.data();
 
+    if(!mounted) return;
+
     _phoneNumberController.text = userData?['phoneNumber'] ?? '';
     setState(() => isLoading=false);
   }
@@ -38,7 +39,10 @@ class _PhoneSettingsState extends State<PhoneSettings> {
     final user = FirebaseAuth.instance.currentUser;
     await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
       'phoneNumber': _phoneNumberController.text,
-    });
+    }, SetOptions(merge: true));
+
+    if(!mounted) return;
+
     Navigator.pop(context);
   }
   @override
@@ -86,7 +90,7 @@ class _PhoneSettingsState extends State<PhoneSettings> {
                 ),
                 child: TextField(
                   controller: _phoneNumberController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.phone,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'xxx-xxx-xxxx',

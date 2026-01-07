@@ -47,7 +47,7 @@ class _AddShortcutModalState extends State<AddShortcutModal> {
     final user = FirebaseAuth.instance.currentUser;
     await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
       widget.fieldName: _addressController.text,
-    });
+    }, SetOptions(merge: true));
     if(!mounted) return;
     Navigator.pop(context);
   }
@@ -97,7 +97,7 @@ class _AddShortcutModalState extends State<AddShortcutModal> {
                 ),
                 child: TextField(
                   controller: _addressController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.streetAddress,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Add address',

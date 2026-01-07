@@ -3,6 +3,8 @@ import '../rides/add_shortcut_modal.dart';
 import '../rides/destination_select_modal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../rides/schedule_ahead_screen.dart';
+import './home_map.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           // Top layer: horizontal purple to pink
           Container(
-            height:250,
+            height:200,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -99,11 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 16),
                         GestureDetector(
-                          onTap: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (context) =>
-                                DestinationSelectModal(label: 'Destination'),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => DestinationSelectModal())
                           ),
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -137,12 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             GestureDetector(
-                              onTap: () => showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => DestinationSelectModal(
-                                  label: 'Schedule Ahead',
-                                ),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ScheduleAheadScreen())
                               ),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -150,8 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF3D3D4A),
+                                  color: Colors.transparent,
                                   borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: Colors.grey, width: 0.4),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -230,11 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Color(0xFF3D3D4A),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Center(
-                              child: Text(
-                                'Map placeholder',
-                                style: TextStyle(color: Colors.grey[500]),
-                              ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: const HomeMap(),
                             ),
                           ),
                         ),
@@ -271,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                 ),
               ),
-              if(hasAddress)
+              if(!hasAddress)
               Text(
                 'Add shortcut',
                 style: TextStyle(fontSize: 14, color: Colors.grey[400]),

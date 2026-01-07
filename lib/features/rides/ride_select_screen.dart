@@ -2,29 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../payments/payment_screen.dart';
+import '../home/home_map.dart';
 
 class RideSelectScreen extends StatefulWidget {
   final String pickupAddress;
   final String destinationAddress;
+  final DateTime? scheduleTime;
 
   const RideSelectScreen({
+    super.key,
     required this.pickupAddress,
     required this.destinationAddress,
+    this.scheduleTime,
   });
 
   @override
   State<RideSelectScreen> createState() => _RideSelectScreenState();
 }
 
-class _RideSelectScreenState extends State<RideSelectScreen>{
+class _RideSelectScreenState extends State<RideSelectScreen> {
   String? _selectedRideType;
 
+  final List<Map<String, dynamic>> _rideOptions = [
+    {'type': 'standard', 'name': 'Standard', 'time': '4 min', 'price': 12.50, 'seats': 4},
+    {'type': 'xl', 'name': 'XL', 'time': '6 min', 'price': 18.00, 'seats': 6},
+    {'type': 'comfort', 'name': 'Comfort', 'time': '5 min', 'price': 22.00, 'seats': 4},
+    {'type': 'luxury', 'name': 'Luxury', 'time': '8 min', 'price': 35.00, 'seats': 4},
+  ];
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // The GPS image.
+          HomeMap(),
           SafeArea(
             child: Stack(
               children: [
@@ -33,7 +44,10 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 300),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[500],
                         borderRadius: BorderRadius.circular(24),
@@ -41,9 +55,22 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Flexible(child: Text(widget.pickupAddress, overflow: TextOverflow.ellipsis)),
-                          Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward, size: 16)),
-                          Flexible(child: Text(widget.destinationAddress, overflow: TextOverflow.ellipsis)),
+                          Flexible(
+                            child: Text(
+                              widget.pickupAddress,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Icon(Icons.arrow_forward, size: 16),
+                          ),
+                          Flexible(
+                            child: Text(
+                              widget.destinationAddress,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -59,7 +86,7 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
           DraggableScrollableSheet(
             initialChildSize: 0.3,
             minChildSize: 0.2,
-            maxChildSize:0.8,
+            maxChildSize: 0.8,
             builder: (context, scrollController) {
               return Container(
                 color: Colors.grey[900],
@@ -139,22 +166,20 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                               });
                             },
                           ),
-                        ]
+                        ],
                       ),
-                    )
-                  ]
-                )
+                    ),
+                  ],
+                ),
               );
-            }
+            },
           ),
           Positioned(
             bottom: 0,
             left: 0,
-            right:0,
+            right: 0,
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[500],
-              ),
+              decoration: BoxDecoration(color: Colors.grey[500]),
               child: Column(
                 children: [
                   Padding(
@@ -162,7 +187,12 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                     child: Row(
                       children: [
                         ElevatedButton(
-                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen())),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentScreen(),
+                            ),
+                          ),
                           child: Text("money"),
                         ),
                         Spacer(),
@@ -170,34 +200,37 @@ class _RideSelectScreenState extends State<RideSelectScreen>{
                           onPressed: () => {},
                           child: Text("schedule ahead"),
                         ),
-                      ]
-                    )
+                      ],
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: _requestRide,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 300, vertical: 30),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 300,
+                        vertical: 30,
+                      ),
                       backgroundColor: Colors.pink,
                       foregroundColor: Colors.white,
-                      shape:RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
                     child: Text('Select'),
                   ),
                   SizedBox(height: 10),
-                ]
-              )
-            )
+                ],
+              ),
+            ),
           ),
-        ]
+        ],
       ),
     );
   }
 
   void _requestRide() async {
-    if (_selectedRideType == null) return;  // don't submit without selection
-    
+    if (_selectedRideType == null) return; // don't submit without selection
+
     final user = FirebaseAuth.instance.currentUser;
 
     await FirebaseFirestore.instance.collection('rides').add({

@@ -5,7 +5,7 @@ class NavigationTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const NavigationTile({
+  const NavigationTile({super.key, 
     required this.icon,
     required this.label,
     required this.onTap,

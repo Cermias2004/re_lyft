@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../shared/widgets/custom_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -30,6 +29,8 @@ class _EmailSettingsState extends State<EmailSettings> {
     final user = FirebaseAuth.instance.currentUser;
     final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final userData = doc.data();
+
+    if(!mounted) return;
 
     _emailController.text = userData?['email'] ?? '';
     setState(() => isLoading=false);
@@ -80,7 +81,8 @@ class _EmailSettingsState extends State<EmailSettings> {
                 ),
                 child: TextField(
                   controller: _emailController,
-                  keyboardType: TextInputType.number,
+                  enabled: false,
+                  keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: '@gmail.com',
@@ -104,7 +106,7 @@ class _EmailSettingsState extends State<EmailSettings> {
                     ),
                   ),
                   child: Text(
-                    'Save',
+                    'Close',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),

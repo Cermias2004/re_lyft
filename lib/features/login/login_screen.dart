@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'homeAddress': '',
         'workAddress': '',
         'createdAt': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true));
     }
     catch (e) {
         debugPrint(e.toString());

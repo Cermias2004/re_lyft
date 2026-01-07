@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../shared/widgets/custom_header.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -32,6 +31,8 @@ class _NameSettingsState extends State<NameSettings> {
     final user = FirebaseAuth.instance.currentUser;
     final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final userData = doc.data();
+
+    if(!mounted) return;
 
     _firstNameController.text = userData?['firstName'] ?? '';
     _lastNameController.text = userData?['lastName'] ?? '';
@@ -94,7 +95,8 @@ class _NameSettingsState extends State<NameSettings> {
                 ),
                 child: TextField(
                   controller: _firstNameController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'first name',

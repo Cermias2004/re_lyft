@@ -4,7 +4,7 @@ class LocationInputRow extends StatelessWidget {
   final String label;
   final IconData icon;
 
-  const LocationInputRow({
+  const LocationInputRow({super.key, 
     required this.label,
     required this.icon,
   });
