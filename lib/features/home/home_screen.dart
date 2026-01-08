@@ -101,10 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 16),
                         GestureDetector(
-                          onTap: () => Navigator.push(
+                          onTap: () async { await Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => DestinationSelectModal())
-                          ),
+                          );
+                          },
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 20,
@@ -137,10 +138,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             GestureDetector(
-                              onTap: () => Navigator.push(
+                              onTap: () async {
+                                final time  = await Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => ScheduleAheadScreen())
-                              ),
+                                );
+                                if(time != null) await Navigator.push(context, MaterialPageRoute(builder: (context) => DestinationSelectModal(scheduleTime: time)));
+                              },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 16,

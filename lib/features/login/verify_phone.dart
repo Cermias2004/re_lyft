@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import './phone_login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class PhoneScreen extends StatefulWidget {
+  const PhoneScreen({super.key});
   
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<PhoneScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<PhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            "assets/images/download.jpg",
+          Image.network(
+            "https://images.unsplash.com/photo-1520975958225-1c74f5a4b2de?auto=format&fit=crop&w=1200&q=80",
             fit: BoxFit.cover,
           ),
 

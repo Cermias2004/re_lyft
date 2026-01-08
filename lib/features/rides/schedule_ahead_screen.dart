@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
-import './destination_select_modal.dart';
 
 
 class ScheduleAheadScreen extends StatefulWidget{
@@ -11,13 +10,10 @@ class ScheduleAheadScreen extends StatefulWidget{
 }
 
 class _ScheduleAheadScreenState extends State<ScheduleAheadScreen>{
-  DateTime datter = DateTime.now();
+  DateTime? datter = DateTime.now();
 
-  void _confirmTime() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DestinationSelectModal(scheduleTime: datter))
-    );
+  void _confirmTime() {
+    Navigator.pop(context, datter);
   }
 
   @override
@@ -43,11 +39,18 @@ class _ScheduleAheadScreenState extends State<ScheduleAheadScreen>{
             ),
             SizedBox(
               height: 250,
-              child:CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.dateAndTime,
-                use24hFormat: false,
-                initialDateTime: datter,
-                onDateTimeChanged: (dt) => setState(() => datter = dt)
+              child: CupertinoTheme(
+                data: CupertinoThemeData(
+                  brightness: Brightness.dark,
+                ),
+                child:CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.dateAndTime,
+                  minimumDate: DateTime.now(),
+                  maximumDate: DateTime.now().add(const Duration(days: 90)),
+                  use24hFormat: false,
+                  initialDateTime: datter!.add(const Duration(minutes: 1)),
+                  onDateTimeChanged: (dt) => setState(() => datter = dt)
+                )
               )
             ),
             Spacer(),

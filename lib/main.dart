@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import './core/theme/theme_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import './features/login/login_screen.dart';
+import 'features/login/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async{

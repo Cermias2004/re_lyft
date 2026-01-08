@@ -39,6 +39,8 @@ class _AddShortcutModalState extends State<AddShortcutModal> {
     final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final userData = doc.data();
 
+    if(!mounted) return;
+    
     _addressController.text = userData?[widget.fieldName] ?? '';
     setState(() => isLoading=false);
   }

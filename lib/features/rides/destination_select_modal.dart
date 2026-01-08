@@ -4,6 +4,7 @@ import '../rides/ride_select_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import './add_shortcut_modal.dart';
+import './schedule_ahead_screen.dart';
 
 class DestinationSelectModal extends StatefulWidget {
   final DateTime? scheduleTime;
@@ -17,6 +18,7 @@ class DestinationSelectModal extends StatefulWidget {
 class _DestinationSelectModalState extends State<DestinationSelectModal> {
   final _pickupController = TextEditingController();
   final _destinationController = TextEditingController();
+  DateTime? _scheduleTime;
   String selected = 'Destination';
   bool _isLoading = true;
   String? homeAddress;
@@ -25,6 +27,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
   @override
   void initState() {
     super.initState();
+    _scheduleTime = widget.scheduleTime;
     _loadUserData();
   }
 
@@ -62,7 +65,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                 ? 'Current Location'
                 : _pickupController.text,
             destinationAddress: homeAddress ?? 'error',
-            scheduleTime: widget.scheduleTime ?? DateTime.now(),
+            scheduleTime: _scheduleTime,
           ),
         ),
       );
@@ -75,7 +78,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                 ? 'Current Location'
                 : _pickupController.text,
             destinationAddress: workAddress ?? 'error',
-            scheduleTime: widget.scheduleTime ?? DateTime.now(),
+            scheduleTime: _scheduleTime,
           ),
         ),
       );
@@ -88,7 +91,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                 ? 'Current Location'
                 : _pickupController.text,
             destinationAddress: _destinationController.text,
-            scheduleTime: widget.scheduleTime ?? DateTime.now(),
+            scheduleTime: _scheduleTime,
           ),
         ),
       );
@@ -101,10 +104,9 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
       backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: _isLoading
-            ? Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFFFF00BF)),
-                ),
+            ? 
+              Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF00BF)),
               )
             : Padding(
                 padding: const EdgeInsets.all(16),
@@ -120,14 +122,10 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DestinationSelectModal(
-                                        ),
-                                  ),
-                                ),
+                                onTap: () async {
+                                  final time = await Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleAheadScreen()));
+                                  if(time != null) setState(() => _scheduleTime = time);
+                                },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -151,12 +149,18 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'Schedule ahead',
+                                        _scheduleTime == null ? 'Schedule ahead' : 'Scheduled • ${_dayLabel(widget.scheduleTime!)}, ${TimeOfDay.fromDateTime(widget.scheduleTime!).format(context)}',
                                         style: TextStyle(
-                                          color: Colors.grey[300],
+                                          color: _scheduleTime == null ? Colors.grey[300] : Colors.white,
                                           fontSize: 14,
                                         ),
                                       ),
+                                      if(_scheduleTime != null)...{
+                                        GestureDetector(
+                                          onTap: () => setState(() => _scheduleTime = null),
+                                          child: Icon(Icons.close, size: 16, color: Colors.grey[300])
+                                        )
+                                      }
                                     ],
                                   ),
                                 ),
@@ -248,7 +252,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                       label: 'Work',
                       hasAddress:
                           workAddress != null && workAddress!.isNotEmpty,
-                      onTap: homeAddress != null
+                      onTap: workAddress != null
                           ? () => _confirmDestination(work: true)
                           : () async {
                               await showModalBottomSheet(
@@ -378,4 +382,17 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
       ),
     );
   }
+
+  String _dayLabel(DateTime t) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(t.year, t.month, t.day);
+    final d = day.difference(today).inDays;
+
+    if(d == 0) return "Today";
+    if(d == 1) return "Tomorrow";
+
+    return '${t.month}/${t.day}';
+  }
+
 }
