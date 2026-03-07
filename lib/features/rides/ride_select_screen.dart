@@ -37,7 +37,6 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
   IconData? icon;
   String? digits;
   DateTime? _scheduleTime;
-  List<LatLng> _routePoints = [];
   Set<Polyline> _polylines = {};
 
   final List<Map<String, dynamic>> _rideOptions = [
@@ -85,7 +84,6 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
     if(points == null || !mounted) return;
 
     setState(() {
-      _routePoints = points;
       _polylines = {
         Polyline(
           polylineId: PolylineId('route'),

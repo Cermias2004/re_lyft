@@ -18,6 +18,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   final _numberFocus = FocusNode();
   bool _numberFocused = false;
   String countryCode = '+1';
+  // ignore: unused_field
   String? _verificationId;
   bool validPhoneNumber = true;
 

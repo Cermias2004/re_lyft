@@ -35,16 +35,7 @@ class _PhoneSettingsState extends State<PhoneSettings> {
     setState(() => isLoading=false);
   }
 
-  void _saveUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
-      'phoneNumber': _phoneNumberController.text,
-    }, SetOptions(merge: true));
-
-    if(!mounted) return;
-
-    Navigator.pop(context);
-  }
+  
   @override
   Widget build(BuildContext context) {
     return Wrap(
