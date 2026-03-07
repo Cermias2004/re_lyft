@@ -5,6 +5,7 @@ import './email_settings.dart';
 import './name_settings.dart';
 import './phone_settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../login/getting_started_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -89,9 +90,11 @@ class SettingsScreen extends StatelessWidget {
                       label: 'Log out',
                       isDestructive: true,
                       onTap: () async {
-                        Navigator.of(
+                        await Navigator.pushAndRemoveUntil(
                           context,
-                        ).popUntil((route) => route.isFirst);
+                          MaterialPageRoute(builder: (context) => GettingStartedScreen()),
+                          (route) => false,
+                        );
                         await FirebaseAuth.instance.signOut();
                       },
                     ),

@@ -104,7 +104,7 @@ class _PhoneSettingsState extends State<PhoneSettings> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _saveUserData,
+                  onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFFF00BF),
                     foregroundColor: Colors.white,
@@ -114,7 +114,7 @@ class _PhoneSettingsState extends State<PhoneSettings> {
                     ),
                   ),
                   child: Text(
-                    'Save',
+                    'Close',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),

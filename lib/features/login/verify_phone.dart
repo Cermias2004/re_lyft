@@ -1,153 +1,258 @@
 import 'package:flutter/material.dart';
-import './phone_login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../main.dart';
+import './name_setup_screen.dart';
 
-class PhoneScreen extends StatefulWidget {
-  const PhoneScreen({super.key});
-  
+class VerifyPhoneScreen extends StatefulWidget {
+  final String verificationId;
+  final String number;
+
+  const VerifyPhoneScreen({
+    super.key,
+    required this.number,
+    required this.verificationId,
+  });
+
   @override
-  State<PhoneScreen> createState() => _LoginScreenState();
+  State<VerifyPhoneScreen> createState() => _VerifyPhoneScreenState();
 }
 
-class _LoginScreenState extends State<PhoneScreen> {
+class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
+  final _codeController = TextEditingController();
+  final _codeFocus = FocusNode();
+  bool _codeFocused = false;
+  bool validPhoneNumber = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _codeFocus.addListener(() {
+      if (!mounted) return;
+      setState(() => _codeFocused = _codeFocus.hasFocus);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _codeFocus.requestFocus;
+    });
+  }
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    _codeFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final w = media.size.width;
-
-    final headlineSize = w < 420 ? 40.0 : 44.0;
-    final buttonHeight = 56.0;
-
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            "https://images.unsplash.com/photo-1520975958225-1c74f5a4b2de?auto=format&fit=crop&w=1200&q=80",
-            fit: BoxFit.cover,
-          ),
-
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black54,
-                  Colors.transparent,
-                  Colors.black87,
-                ],
-                stops: [0.0, 0.45, 1.0],
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 18, 24, 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top bar
-                  Row(
+      backgroundColor: Color(0xFF1a1a2e),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.baby_changing_station, color: const Color(0xFFFF00BF), size: 28),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        constraints: BoxConstraints(),
+                        iconSize: 28,
+                      ),
 
-                      const Spacer(),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Check your texts for the super-secret code',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Text(
+                        'To confirm your number, enter the code.',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                      ),
+
+                      const SizedBox(height: 24),
 
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(999),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.language, color: Colors.white, size: 16),
-                            SizedBox(width: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF2d2d44),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _codeFocused
+                                ? Color(0xFF6B48FF)
+                                : Colors.grey[700]!,
+                            width: _codeFocused ? 2 : 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              'English',
+                              '6-digit code',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                color: Colors.grey[500],
                               ),
                             ),
-                            SizedBox(width: 6),                          
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    focusNode: _codeFocus,
+                                    controller: _codeController,
+                                    cursorColor: Color(0xFF6B48FF),
+                                    autofocus: true,
+                                    keyboardType: TextInputType.phone,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      hintText: '',
+                                    ),
+                                    onChanged: (_) => setState(() {}),
+                                  ),
+                                ),
+                                if (_codeController.text.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _codeController.clear()),
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[600],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 14,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
+                      if (!validPhoneNumber)
+                        Padding(
+                          padding: EdgeInsets.only(top: 12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Sorry, there was a problem with the code. Please make sure you\'ve entered the correct code.',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      const SizedBox(height: 24),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _verifyCode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6B48FF),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26),
+                            ),
+                          ),
+                          child: Text(
+                            'Next',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
                     ],
                   ),
-                  const Spacer(),
-                  Text(
-                    "Let’s get",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: headlineSize,
-                      fontWeight: FontWeight.w700,
-                      height: 1.05,
-                    ),
-                  ),
-                  Text(
-                    "you there",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: headlineSize,
-                      fontWeight: FontWeight.w700,
-                      height: 1.05,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    height: buttonHeight,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await Navigator.push(context, MaterialPageRoute(builder: (context) => PhoneLoginScreen()));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6B48FF),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                      ),
-                      child: const Text(
-                        'Get started',
-                        style: TextStyle(
-                          color: Color(0xFFEAEAEA),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Ready to earn? Open the driver app.',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, size: 16, color: Colors.white),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
+  Future<void> _verifyCode() async {
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId,
+        smsCode: _codeController.text,
+      );
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({'phoneNumber': widget.number}, SetOptions(merge: true));
+      if (!mounted) return;
+
+      if (doc.exists) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => MainApp()),
+          (route) => false,
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => NameSetupScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      setState(() => validPhoneNumber = false);
+    }
+  }
 }

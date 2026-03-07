@@ -5,6 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import './add_shortcut_modal.dart';
 import './schedule_ahead_screen.dart';
+import '../../services/places_services.dart';
+import 'dart:async';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../services/location_services.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DestinationSelectModal extends StatefulWidget {
   final DateTime? scheduleTime;
@@ -19,10 +24,22 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
   final _pickupController = TextEditingController();
   final _destinationController = TextEditingController();
   DateTime? _scheduleTime;
-  String selected = 'Destination';
+  String _selected = 'Destination';
   bool _isLoading = true;
-  String? homeAddress;
-  String? workAddress;
+  String? _homeAddress;
+  String? _homePlaceId;
+  String? _workAddress;
+  String? _workPlaceId;
+
+  Position?_userPosition;
+
+  Timer? _debounce;
+
+  List<PlacesSuggestion> _suggestions = [];
+  bool _suggestIsLoading = false;
+
+  PlacesDetails? _pickupDetails;
+  PlacesDetails? _destinationDetails;
 
   @override
   void initState() {
@@ -33,6 +50,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _pickupController.dispose();
     _destinationController.dispose();
     super.dispose();
@@ -46,56 +64,85 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
         .get();
     final userData = doc.data();
 
+    _userPosition = await LocationService.getUserPosition();
+
     if (!mounted) return;
 
     setState(() {
-      homeAddress = userData?['homeAddress'];
-      workAddress = userData?['workAddress'];
+      _homeAddress = userData?['home']?['homeAddress'];
+      _homePlaceId = userData?['home']?['placeId'];
+      _workAddress = userData?['work']?['workAddress'];
+      _workPlaceId = userData?['work']?['placeId'];
       _isLoading = false;
+      _suggestIsLoading = false;
     });
   }
 
-  void _confirmDestination({bool home = false, bool work = false}) async {
-    if (home == true) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RideSelectScreen(
-            pickupAddress: _pickupController.text.isEmpty
-                ? 'Current Location'
-                : _pickupController.text,
-            destinationAddress: homeAddress ?? 'error',
-            scheduleTime: _scheduleTime,
-          ),
-        ),
-      );
-    } else if (work == true) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RideSelectScreen(
-            pickupAddress: _pickupController.text.isEmpty
-                ? 'Current Location'
-                : _pickupController.text,
-            destinationAddress: workAddress ?? 'error',
-            scheduleTime: _scheduleTime,
-          ),
-        ),
-      );
-    } else if (_destinationController.text.isNotEmpty) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RideSelectScreen(
-            pickupAddress: _pickupController.text.isEmpty
-                ? 'Current Location'
-                : _pickupController.text,
-            destinationAddress: _destinationController.text,
-            scheduleTime: _scheduleTime,
-          ),
-        ),
-      );
+  Future<void> _fetchSuggestions (String input) async {
+    if(input.length < 2) {
+      setState(() {
+        _suggestions = [];
+        _suggestIsLoading = false;
+      });
+      return;
     }
+
+    setState(() => _suggestIsLoading = true);
+
+    final result = await PlacesService.getSuggestions(input, location: _userPosition != null ? LatLng(_userPosition!.latitude, _userPosition!.longitude) : null);
+
+    if(!mounted) return;
+    setState(() {
+      _suggestions = result;
+      _suggestIsLoading = false;
+    });
+  }
+
+  void _onSearchChanged (String input) {
+    if(_debounce?.isActive ?? false) _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 150), () {
+      _fetchSuggestions(input);
+    });
+  }
+
+  Future<void> _onSuggestionTap(PlacesSuggestion suggestion) async {
+    final details = await PlacesService.getDetails(suggestion.placeId);
+    if(details == null || !mounted) return;
+
+    setState(() {
+      if(_selected == 'Start') {
+      _pickupController.text = suggestion.mainText;
+      _pickupDetails = details;
+      } else {
+        _destinationController.text = suggestion.mainText;
+        _destinationDetails = details;
+      }
+      _suggestions = [];
+    });
+  }
+
+  void _confirmDestination() {
+    if(_destinationController.text.isEmpty || _destinationDetails == null) return;
+
+    final pickupAddress = _pickupController.text.isEmpty ? 'Current Location' : _pickupController.text;
+
+    if(pickupAddress == 'Current Location' && _userPosition == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RideSelectScreen(
+          pickupAddress: pickupAddress,
+          destinationAddress: _destinationController.text,
+          pickupLat: pickupAddress != 'Current Location' ? _pickupDetails!.lat : _userPosition!.latitude,
+          pickupLng: pickupAddress != 'Current Location' ? _pickupDetails!.lng : _userPosition!.longitude,
+          destinationLat: _destinationDetails!.lat,
+          destinationLng: _destinationDetails!.lng,
+          scheduleTime: widget.scheduleTime,
+        )
+      )
+    );
   }
 
   @override
@@ -149,7 +196,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        _scheduleTime == null ? 'Schedule ahead' : 'Scheduled • ${_dayLabel(widget.scheduleTime!)}, ${TimeOfDay.fromDateTime(widget.scheduleTime!).format(context)}',
+                                        _scheduleTime == null ? 'Schedule ahead' : 'Scheduled • ${_dayLabel(_scheduleTime!)}, ${TimeOfDay.fromDateTime(_scheduleTime!).format(context)}',
                                         style: TextStyle(
                                           color: _scheduleTime == null ? Colors.grey[300] : Colors.white,
                                           fontSize: 14,
@@ -181,9 +228,9 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                           _buildLocationRow(
                             accentColor: Colors.indigoAccent,
                             controller: _pickupController,
-                            isSelected: selected == 'Start',
+                            isSelected: _selected == 'Start',
                             label: 'Start',
-                            onTap: () => setState(() => selected = 'Start'),
+                            onTap: () => setState(() => _selected = 'Start'),
                             placeholder: 'Current location',
                           ),
                           Divider(
@@ -194,16 +241,103 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                           _buildLocationRow(
                             accentColor: Color(0xFFFF00BF),
                             controller: _destinationController,
-                            isSelected: selected == 'Destination',
+                            isSelected: _selected == 'Destination',
                             label: 'Destination',
                             onTap: () =>
-                                setState(() => selected = 'Destination'),
+                                setState(() => _selected = 'Destination'),
                             placeholder: 'Where to?',
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    if(_suggestIsLoading)
+                    CircularProgressIndicator(color: Color(0xFFFF00BF))
+                    else if(_suggestions.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _suggestions.length,
+                        itemBuilder: (context, index) {
+                          final suggestion = _suggestions[index];
+                          return ListTile(
+                            leading: Icon(Icons.location_on, color: Colors.grey[400]),
+                            title: Text(suggestion.mainText, style: TextStyle(color: Colors.white)),
+                            subtitle: Text(suggestion.secondaryText, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                            onTap: () => _onSuggestionTap(suggestion)
+                          );
+                        }
+                      )
+                    )
+                    else...{
+                      _buildShortcutTile(
+                        icon: Icons.home,
+                        label: 'Home',
+                        hasAddress:
+                            _homeAddress != null && _homeAddress!.isNotEmpty,
+                        onTap: _homeAddress != null
+                            ? () async {
+                              final details = await PlacesService.getDetails(_homePlaceId!);
+                              if(details == null || !mounted) return;
+
+                              setState(() {
+                                if(_selected == 'Start'){
+                                  _pickupController.text = _homeAddress!;
+                                _pickupDetails = details;
+                                } else {
+                                  _destinationController.text = _homeAddress!;
+                                  _destinationDetails = details;
+                                }
+                              });
+                            }
+                            : () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) => AddShortcutModal(
+                                    fieldName: 'homeAddress',
+                                    icon: Icons.home,
+                                    label: 'Home',
+                                  ),
+                                );
+                                _loadUserData();
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildShortcutTile(
+                        icon: Icons.work,
+                        label: 'Work',
+                        hasAddress:
+                            _workAddress != null && _workAddress!.isNotEmpty,
+                        onTap: _workAddress != null
+                            ? () async {
+                              final details = await PlacesService.getDetails(_workPlaceId!);
+                              if(details == null || !mounted) return;
+
+                              setState(() {
+                                if(_selected == 'Start'){
+                                  _pickupController.text = _workAddress!;
+                                _pickupDetails = details;
+                                } else {
+                                  _destinationController.text = _workAddress!;
+                                  _destinationDetails = details;
+                                }
+                              });
+                            }
+                            : () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) => AddShortcutModal(
+                                    fieldName: 'workAddress',
+                                    icon: Icons.work,
+                                    label: 'Work',
+                                  ),
+                                );
+                                _loadUserData();
+                              },
+                      ),
+                    },
+                    Spacer(),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -226,47 +360,6 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildShortcutTile(
-                      icon: Icons.home,
-                      label: 'Home',
-                      hasAddress:
-                          homeAddress != null && homeAddress!.isNotEmpty,
-                      onTap: homeAddress != null
-                          ? () => _confirmDestination(home: true)
-                          : () async {
-                              await showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => AddShortcutModal(
-                                  fieldName: 'homeAddress',
-                                  icon: Icons.home,
-                                  label: 'Home',
-                                ),
-                              );
-                              _loadUserData();
-                            },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildShortcutTile(
-                      icon: Icons.work,
-                      label: 'Work',
-                      hasAddress:
-                          workAddress != null && workAddress!.isNotEmpty,
-                      onTap: workAddress != null
-                          ? () => _confirmDestination(work: true)
-                          : () async {
-                              await showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => AddShortcutModal(
-                                  fieldName: 'workAddress',
-                                  icon: Icons.work,
-                                  label: 'Work',
-                                ),
-                              );
-                              _loadUserData();
-                            },
-                    ),
                   ],
                 ),
               ),
@@ -350,6 +443,7 @@ class _DestinationSelectModalState extends State<DestinationSelectModal> {
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
                             ),
+                            onChanged: (_) => _onSearchChanged(controller.text),
                           ),
                         ],
                       )

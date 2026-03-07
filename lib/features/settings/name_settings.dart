@@ -115,7 +115,7 @@ class _NameSettingsState extends State<NameSettings> {
                 ),
                 child: TextField(
                   controller: _lastNameController,
-                  keyboardType: TextInputType.datetime,
+                  keyboardType: TextInputType.text,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'last name',

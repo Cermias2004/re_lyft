@@ -5,17 +5,26 @@ import '../payments/payment_screen.dart';
 import '../home/home_map.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import '../../services/places_services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RideSelectScreen extends StatefulWidget {
   final String pickupAddress;
   final String destinationAddress;
+  final double pickupLat;
+  final double pickupLng;
+  final double destinationLat;
+  final double destinationLng;
   final DateTime? scheduleTime;
 
   const RideSelectScreen({
     super.key,
     required this.pickupAddress,
     required this.destinationAddress,
+    required this.pickupLat,
+    required this.pickupLng,
+    required this.destinationLat,
+    required this.destinationLng,
     this.scheduleTime,
   });
 
@@ -28,6 +37,8 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
   IconData? icon;
   String? digits;
   DateTime? _scheduleTime;
+  List<LatLng> _routePoints = [];
+  Set<Polyline> _polylines = {};
 
   final List<Map<String, dynamic>> _rideOptions = [
     {
@@ -59,13 +70,46 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
     super.initState();
     _scheduleTime = widget.scheduleTime;
     _loadUserPayment();
+    _loadRoute();
+  }
+
+  Future<void> _loadRoute() async {
+    final points = await PlacesService.getRoutePolyline(
+      pickupLat: widget.pickupLat,
+      pickupLng: widget.pickupLng,
+      destLat: widget.destinationLat,
+      destLng: widget.destinationLng,
+    );
+
+ 
+    if(points == null || !mounted) return;
+
+    setState(() {
+      _routePoints = points;
+      _polylines = {
+        Polyline(
+          polylineId: PolylineId('route'),
+          points: points,
+          color: Colors.red,
+          width: 8,
+          visible: true,
+        )
+      };
+    });
+
   }
 
   void _loadUserPayment() async {
     final user = FirebaseAuth.instance.currentUser;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('paymentMethods').where('isDefault', isEqualTo: true).limit(1).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('paymentMethods')
+        .where('isDefault', isEqualTo: true)
+        .limit(1)
+        .get();
 
-    if(!mounted) return;
+    if (!mounted) return;
 
     final data = doc.docs.firstOrNull;
     setState(() {
@@ -104,7 +148,7 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
           // Map
           Positioned.fill(
             bottom: MediaQuery.of(context).size.height * 0.45,
-            child: HomeMap(),
+            child: HomeMap(polylines: _polylines),
           ),
 
           Positioned(
@@ -169,9 +213,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                             BoxShadow(
                               color: Colors.black45,
                               blurRadius: 8,
-                              offset: Offset(0,2)
-                            )
-                          ]
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
@@ -184,7 +228,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: Color(0xFF2D2D3A),
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
                       ),
                       child: Column(
                         children: [
@@ -245,7 +291,8 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                               itemCount: _rideOptions.length,
                               itemBuilder: (context, index) {
                                 final ride = _rideOptions[index];
-                                final isSelected = _selectedRideType == ride['type'];
+                                final isSelected =
+                                    _selectedRideType == ride['type'];
                                 return GestureDetector(
                                   onTap: () => setState(
                                     () => _selectedRideType = ride['type'],
@@ -254,7 +301,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                     margin: EdgeInsets.only(bottom: 12),
                                     padding: EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? Color(0xFFFF00BF).withOpacity(0.15) : Color(0xFF3D3D4A),
+                                      color: isSelected
+                                          ? Color(0xFFFF00BF).withOpacity(0.15)
+                                          : Color(0xFF3D3D4A),
                                       borderRadius: BorderRadius.circular(12),
                                       border: isSelected
                                           ? Border.all(
@@ -270,7 +319,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                           height: 50,
                                           decoration: BoxDecoration(
                                             color: Colors.grey[700],
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.directions_car,
@@ -291,7 +342,8 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 8),
@@ -342,7 +394,10 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                             decoration: BoxDecoration(
                               color: Color(0xFF2D2D3A),
                               border: Border(
-                                top: BorderSide(color: Colors.grey[800]!, width: 1),
+                                top: BorderSide(
+                                  color: Colors.grey[800]!,
+                                  width: 1,
+                                ),
                               ),
                             ),
                             child: SafeArea(
@@ -352,12 +407,14 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                   Row(
                                     children: [
                                       GestureDetector(
-                                        onTap: () async{
+                                        onTap: () async {
                                           await Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => PaymentScreen(),
-                                          ));
+                                              builder: (context) =>
+                                                  PaymentScreen(),
+                                            ),
+                                          );
                                           _loadUserPayment();
                                         },
                                         child: Container(
@@ -367,15 +424,29 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: Color(0xFF3D3D4A),
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                           ),
                                           child: Row(
                                             children: [
-                                              Icon(icon?? Icons.credit_card, color: Color(0xFFFF00BF), size: 18),
+                                              Icon(
+                                                icon ?? Icons.credit_card,
+                                                color: Color(0xFFFF00BF),
+                                                size: 18,
+                                              ),
                                               const SizedBox(width: 8),
-                                              Text(digits != null ? '****$digits' : 'Payment', style: TextStyle(color: Colors.white, fontSize: 14))
-                                            ] 
-                                          )
+                                              Text(
+                                                digits != null
+                                                    ? '****$digits'
+                                                    : 'Payment',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       Spacer(),
@@ -386,7 +457,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Color(0xFF3D3D4A),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
@@ -397,9 +470,11 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
-                                              _scheduleTime == null ? DateFormat(
-                                                'h:mm a',
-                                              ).format(DateTime.now()) : '${_dayLabel(_scheduleTime!)}, ${TimeOfDay.fromDateTime(_scheduleTime!).format(context)}',
+                                              _scheduleTime == null
+                                                  ? DateFormat(
+                                                      'h:mm a',
+                                                    ).format(DateTime.now())
+                                                  : '${_dayLabel(_scheduleTime!)}, ${TimeOfDay.fromDateTime(_scheduleTime!).format(context)}',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 14,
@@ -419,11 +494,16 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                                           : null,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFFFF00BF),
-                                        disabledBackgroundColor: Colors.grey[700],
+                                        disabledBackgroundColor:
+                                            Colors.grey[700],
                                         foregroundColor: Colors.white,
-                                        padding: EdgeInsets.symmetric(vertical: 16),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(28),
+                                          borderRadius: BorderRadius.circular(
+                                            28,
+                                          ),
                                         ),
                                       ),
                                       child: Text(
@@ -443,9 +523,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
                           ),
                         ],
                       ),
-                    )
-                  )
-                ]
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -460,8 +540,8 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
     final day = DateTime(t.year, t.month, t.day);
     final d = day.difference(today).inDays;
 
-    if(d == 0) return "Today";
-    if(d == 1) return "Tomorrow";
+    if (d == 0) return "Today";
+    if (d == 1) return "Tomorrow";
 
     return '${t.month}/${t.day}';
   }

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import './phone_login_screen.dart';
+import '../../main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class GettingStartedScreen extends StatefulWidget {
+  const GettingStartedScreen({super.key});
   
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<GettingStartedScreen> createState() => _GettingStartedScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _GettingStartedScreenState extends State<GettingStartedScreen> {
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +54,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Top bar
                   Row(
                     children: [
-                      Icon(Icons.baby_changing_station, color: const Color(0xFFFF00BF), size: 28),
-
+                      IconButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: 'test@gmail.com',
+                            password: '123456'
+                          );
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
+                        },
+                        icon: Icon(Icons.baby_changing_station, color: const Color(0xFFFF00BF), size: 28),
+                      ),
                       const Spacer(),
 
                       Container(

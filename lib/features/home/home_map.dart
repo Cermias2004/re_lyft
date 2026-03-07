@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../services/location_services.dart';
 import 'package:geolocator/geolocator.dart';
 
 class HomeMap extends StatefulWidget{
-  const HomeMap({super.key});
+  final Set<Polyline>? polylines;
+  const HomeMap({super.key,  this.polylines});
 
   @override
   State<HomeMap> createState() => _HomeMapState();
@@ -14,6 +16,8 @@ class _HomeMapState extends State<HomeMap> {
   LatLng? _userLatLng;
   bool _isLoading = true;
   String? error;
+  Position? _userPosition;
+  Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -22,27 +26,26 @@ class _HomeMapState extends State<HomeMap> {
   }
 
   Future<void> _getLocation() async {
-    try{
-      final permission = await Geolocator.requestPermission();
-      if(!mounted) return;
-      if(permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        setState(() {
-          error = "Location permission denied";
-          _isLoading = false;
-        });
-        return;
-      }
+    setState(() => _isLoading = true);
+    _userPosition = await LocationService.getUserPosition();
+    if(!mounted) return;
 
-      final pos = await Geolocator.getCurrentPosition();
-      if(!mounted) return;
-        setState(() {
-          _userLatLng = LatLng(pos.latitude, pos.longitude);
-          _isLoading = false;
-        });
-
-    } catch(e) {
+    if(_userPosition == null) {
       setState(() {
-        error = "Failed to get location: $e";
+        error = 'Failed to get User Position';
+        _isLoading = false;
+      });
+    }else {
+      final latLng = LatLng(_userPosition!.latitude, _userPosition!.longitude);
+      setState(() {
+        _userLatLng = latLng;
+        _markers = {
+          Marker(
+            markerId: MarkerId('currentLocation'),
+            position: latLng,
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+          ),
+        };
         _isLoading = false;
       });
     }
@@ -50,6 +53,7 @@ class _HomeMapState extends State<HomeMap> {
 
   @override
   Widget build(BuildContext context) {
+    
     if(_isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.grey[300]));
     }
@@ -62,14 +66,16 @@ class _HomeMapState extends State<HomeMap> {
     return Stack(
       children: [
         GoogleMap(
+          key: ValueKey(widget.polylines?.length ?? 0),  
           initialCameraPosition: CameraPosition(target: center, zoom: 16),
+          polylines: widget.polylines  ?? <Polyline>{},
           buildingsEnabled: false,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           mapToolbarEnabled: false,
           compassEnabled: false,
-          markers: const {},
+          markers: _markers,
           onMapCreated: (c) {
             _controller = c;
             _controller!.setMapStyle('''

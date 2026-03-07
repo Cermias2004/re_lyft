@@ -5,11 +5,18 @@ import 'package:provider/provider.dart';
 import './core/theme/theme_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'features/login/login_screen.dart';
+import 'features/login/getting_started_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -41,7 +48,7 @@ class MyApp extends StatelessWidget {
               if(snapshot.hasData){
                 return MainApp();
               }
-              return const LoginScreen();
+              return const GettingStartedScreen();
             }
           )
         );

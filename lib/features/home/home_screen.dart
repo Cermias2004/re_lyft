@@ -37,8 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _firstName = userData?['firstName'] ?? '';
-      homeAddress = userData?['homeAddress'];
-      workAddress = userData?['workAddress'];
+      homeAddress = userData?['home']['homeAddress'];
+      workAddress = userData?['work']['workAddress'];
       _isLoading = false;
     });
   }
@@ -275,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 'Add shortcut',
                 style: TextStyle(fontSize: 14, color: Colors.grey[400]),
-              ),
+              ), 
             ],
           ),
         ],

@@ -4,6 +4,8 @@ import '../../shared/widgets/custom_header.dart';
 
 
 class ScheduleAheadScreen extends StatefulWidget{
+  const ScheduleAheadScreen({super.key});
+
   
   @override
   State<ScheduleAheadScreen> createState() => _ScheduleAheadScreenState();
