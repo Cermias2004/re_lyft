@@ -1,64 +1,147 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/custom_header.dart';
-import '../../shared/widgets/navigation_tile.dart';
-import '../../shared/widgets/add_shortcut_modal.dart';
+import '../rides/add_shortcut_modal.dart';
 import './email_settings.dart';
 import './name_settings.dart';
 import './phone_settings.dart';
-import './dark_mode_settings.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import '../login/getting_started_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomHeader(title: 'Settings'),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.person_3_sharp, label: 'Name', onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NameSettings()),
-                );
-              }),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.mail, label: 'Email', onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EmailSettings()),
-                );
-              }),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.phone, label: 'Phone', onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PhoneSettings()),
-                );
-              }),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.dark_mode, label: 'Dark Mode',   onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DarkModeSettings())
-                );
-              }),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.home, label: 'Home', onTap: () => addShortcutModal(context, 'Home', Icons.home)),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.work, label: 'Work', onTap: () => addShortcutModal(context, 'Work', Icons.work)),
-              const SizedBox(width: 12),
-              NavigationTile(icon: Icons.exit_to_app_sharp, label: 'Log out', onTap: () {
-                // Implement logout functionality here
-              }),
-            ]
-          )
-        )
-      )
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: CustomHeader(title: 'Settings'),
+            ),
+            const SizedBox(height: 36),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    _buildSettingsTile(
+                      icon: Icons.person,
+                      label: 'Name',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => NameSettings(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.mail,
+                      label: 'Email',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => EmailSettings(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.phone,
+                      label: 'Phone',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => PhoneSettings(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.home,
+                      label: 'Home Address',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => AddShortcutModal(
+                          label: 'Home',
+                          icon: Icons.home,
+                          fieldName: 'homeAddress',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.work,
+                      label: 'Work Address',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => AddShortcutModal(
+                          label: 'Work',
+                          icon: Icons.work,
+                          fieldName: 'workAddress',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.exit_to_app,
+                      label: 'Log out',
+                      isDestructive: true,
+                      onTap: () async {
+                        await Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GettingStartedScreen(),
+                          ),
+                          (route) => false,
+                        );
+                        await FirebaseAuth.instance.signOut();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isDestructive ? Colors.red : Color(0xFFFF00BF)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isDestructive ? Colors.red : Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey[600]),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -11,21 +11,18 @@ class CustomHeader extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          onPressed: onBackPressed?? () => Navigator.pop(context),
-          icon: const Icon(Icons.close),  
+          onPressed: onBackPressed ?? () => Navigator.pop(context),
+          icon: const Icon(Icons.close),
         ),
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(width: 48),  
-      ]
+        const SizedBox(width: 48),
+      ],
     );
   }
 }
