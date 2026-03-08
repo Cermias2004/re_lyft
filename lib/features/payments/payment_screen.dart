@@ -31,7 +31,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         .orderBy('createdAt', descending: true)
         .get();
 
-    if(!mounted) return;
+    if (!mounted) return;
 
     setState(() {
       _paymentMethods = snapshot.docs.map((doc) {
@@ -185,9 +185,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   String _detectCardType({required String cardNumber}) {
-    if(cardNumber.startsWith('3')) return 'amex';
-    if(cardNumber.startsWith('4')) return 'visa';
-    if(cardNumber.startsWith('5'))return 'mastercard';
+    if (cardNumber.startsWith('3')) return 'amex';
+    if (cardNumber.startsWith('4')) return 'visa';
+    if (cardNumber.startsWith('5')) return 'mastercard';
     return 'card';
   }
 
@@ -267,7 +267,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         child: Row(
                           children: [
-                            FaIcon(_getCardIcon(card['type']),
+                            FaIcon(
+                              _getCardIcon(card['type']),
                               color: Colors.grey[800],
                               size: 32,
                             ),

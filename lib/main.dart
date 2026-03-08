@@ -9,24 +9,17 @@ import 'features/login/getting_started_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeManager(),
-      child: MyApp(),
-    )
-  );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(ChangeNotifierProvider(create: (_) => ThemeManager(), child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -45,18 +38,17 @@ class MyApp extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if(snapshot.hasData){
+              if (snapshot.hasData) {
                 return MainApp();
               }
               return const GettingStartedScreen();
-            }
-          )
+            },
+          ),
         );
-      }
+      },
     );
   }
 }
-
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});

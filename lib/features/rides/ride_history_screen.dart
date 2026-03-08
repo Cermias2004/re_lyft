@@ -34,7 +34,6 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
       _rides = snapshot.docs.map((doc) => doc.data()).toList();
       isLoading = false;
     });
-    
   }
 
   @override
@@ -48,19 +47,20 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
               padding: EdgeInsets.all(16),
               child: CustomHeader(title: 'Ride History'),
             ),
-            if(isLoading) 
+            if (isLoading)
               Expanded(
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFFFF00BF))
-                )
+                  child: CircularProgressIndicator(color: Color(0xFFFF00BF)),
+                ),
               )
-            else if(_rides.isEmpty)
+            else if (_rides.isEmpty)
               Expanded(
                 child: Center(
-                  child: Text('No rides yet',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                  )
-                )
+                  child: Text(
+                    'No rides yet',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  ),
+                ),
               )
             else
               Expanded(
@@ -93,11 +93,11 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
     required String status,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom:12),
+      margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12)
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
@@ -109,7 +109,11 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
               children: [
                 Text(
                   '$pickupAddress → $destinationAddress',
-                  style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
@@ -124,13 +128,17 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: status == 'completed' ? Colors.green[100] : Colors.orange[100],
+              color: status == 'completed'
+                  ? Colors.green[100]
+                  : Colors.orange[100],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               status,
               style: TextStyle(
-                color: status == 'completed' ? Colors.green[800] : Colors.orange[800],
+                color: status == 'completed'
+                    ? Colors.green[800]
+                    : Colors.orange[800],
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),

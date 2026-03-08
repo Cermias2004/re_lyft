@@ -40,16 +40,20 @@ void main() {
                 return Scaffold(
                   body: Column(
                     children: [
-                      ...['Standard', 'XL'].map((type) => ListTile(
-                            title: Text(type),
-                            selected: selectedType == type,
-                            onTap: () => setState(() => selectedType = type),
-                          )),
+                      ...['Standard', 'XL'].map(
+                        (type) => ListTile(
+                          title: Text(type),
+                          selected: selectedType == type,
+                          onTap: () => setState(() => selectedType = type),
+                        ),
+                      ),
                       ElevatedButton(
                         onPressed: selectedType != null ? () {} : null,
-                        child: Text(selectedType != null
-                            ? 'Confirm $selectedType'
-                            : 'Select a ride'),
+                        child: Text(
+                          selectedType != null
+                              ? 'Confirm $selectedType'
+                              : 'Select a ride',
+                        ),
                       ),
                     ],
                   ),

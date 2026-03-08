@@ -3,9 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../services/location_services.dart';
 import 'package:geolocator/geolocator.dart';
 
-class HomeMap extends StatefulWidget{
+class HomeMap extends StatefulWidget {
   final Set<Polyline>? polylines;
-  const HomeMap({super.key,  this.polylines});
+  const HomeMap({super.key, this.polylines});
 
   @override
   State<HomeMap> createState() => _HomeMapState();
@@ -28,14 +28,14 @@ class _HomeMapState extends State<HomeMap> {
   Future<void> _getLocation() async {
     setState(() => _isLoading = true);
     _userPosition = await LocationService.getUserPosition();
-    if(!mounted) return;
+    if (!mounted) return;
 
-    if(_userPosition == null) {
+    if (_userPosition == null) {
       setState(() {
         error = 'Failed to get User Position';
         _isLoading = false;
       });
-    }else {
+    } else {
       final latLng = LatLng(_userPosition!.latitude, _userPosition!.longitude);
       setState(() {
         _userLatLng = latLng;
@@ -43,7 +43,9 @@ class _HomeMapState extends State<HomeMap> {
           Marker(
             markerId: MarkerId('currentLocation'),
             position: latLng,
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueViolet,
+            ),
           ),
         };
         _isLoading = false;
@@ -53,12 +55,11 @@ class _HomeMapState extends State<HomeMap> {
 
   @override
   Widget build(BuildContext context) {
-    
-    if(_isLoading) {
+    if (_isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.grey[300]));
     }
 
-    if(error != null) {
+    if (error != null) {
       return Center(child: Text(error!));
     }
 
@@ -66,9 +67,9 @@ class _HomeMapState extends State<HomeMap> {
     return Stack(
       children: [
         GoogleMap(
-          key: ValueKey(widget.polylines?.length ?? 0),  
+          key: ValueKey(widget.polylines?.length ?? 0),
           initialCameraPosition: CameraPosition(target: center, zoom: 16),
-          polylines: widget.polylines  ?? <Polyline>{},
+          polylines: widget.polylines ?? <Polyline>{},
           buildingsEnabled: false,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
@@ -122,7 +123,7 @@ class _HomeMapState extends State<HomeMap> {
             ),
           ),
         ),
-      ]
+      ],
     );
   }
 }

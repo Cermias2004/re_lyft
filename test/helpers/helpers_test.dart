@@ -132,8 +132,14 @@ void main() {
       });
 
       test('handles different country codes', () {
-        expect(PhoneHelpers.formatPhoneNumber('+44', '7911123456'), '+447911123456');
-        expect(PhoneHelpers.formatPhoneNumber('+91', '9876543210'), '+919876543210');
+        expect(
+          PhoneHelpers.formatPhoneNumber('+44', '7911123456'),
+          '+447911123456',
+        );
+        expect(
+          PhoneHelpers.formatPhoneNumber('+91', '9876543210'),
+          '+919876543210',
+        );
       });
     });
 

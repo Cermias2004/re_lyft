@@ -34,7 +34,7 @@ class SettingsScreen extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         builder: (context) => NameSettings(),
-                      )
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildSettingsTile(
@@ -44,7 +44,7 @@ class SettingsScreen extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         builder: (context) => EmailSettings(),
-                      )
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildSettingsTile(
@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         builder: (context) => PhoneSettings(),
-                      )
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildSettingsTile(
@@ -92,7 +92,9 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () async {
                         await Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => GettingStartedScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => GettingStartedScreen(),
+                          ),
                           (route) => false,
                         );
                         await FirebaseAuth.instance.signOut();
@@ -120,7 +122,7 @@ class SettingsScreen extends StatelessWidget {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12)
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
@@ -134,12 +136,12 @@ class SettingsScreen extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
-              )
+              ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[600])
-          ]
-        )
-      )
+            Icon(Icons.chevron_right, color: Colors.grey[600]),
+          ],
+        ),
+      ),
     );
   }
 }

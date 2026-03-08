@@ -9,12 +9,15 @@ class LocationService {
     final permission = await Geolocator.requestPermission();
 
     if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever)
-      {return null;}
+        permission == LocationPermission.deniedForever) {
+      return null;
+    }
 
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
 
-      _cachedPosition = position;
-      return position;
+    _cachedPosition = position;
+    return position;
   }
 }

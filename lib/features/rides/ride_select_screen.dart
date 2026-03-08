@@ -80,8 +80,7 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
       destLng: widget.destinationLng,
     );
 
- 
-    if(points == null || !mounted) return;
+    if (points == null || !mounted) return;
 
     setState(() {
       _polylines = {
@@ -91,10 +90,9 @@ class _RideSelectScreenState extends State<RideSelectScreen> {
           color: Colors.red,
           width: 8,
           visible: true,
-        )
+        ),
       };
     });
-
   }
 
   void _loadUserPayment() async {

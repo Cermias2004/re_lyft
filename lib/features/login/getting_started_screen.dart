@@ -5,13 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class GettingStartedScreen extends StatefulWidget {
   const GettingStartedScreen({super.key});
-  
+
   @override
   State<GettingStartedScreen> createState() => _GettingStartedScreenState();
 }
 
 class _GettingStartedScreenState extends State<GettingStartedScreen> {
-
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
@@ -25,21 +24,14 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            "assets/images/download.jpg",
-            fit: BoxFit.cover,
-          ),
+          Image.asset("assets/images/download.jpg", fit: BoxFit.cover),
 
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black54,
-                  Colors.transparent,
-                  Colors.black87,
-                ],
+                colors: [Colors.black54, Colors.transparent, Colors.black87],
                 stops: [0.0, 0.45, 1.0],
               ),
             ),
@@ -56,18 +48,29 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                     children: [
                       IconButton(
                         onPressed: () async {
-                          await FirebaseAuth.instance.signInWithEmailAndPassword(
-                            email: 'test@gmail.com',
-                            password: '123456'
+                          await FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                                email: 'test@gmail.com',
+                                password: '123456',
+                              );
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainApp()),
                           );
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
                         },
-                        icon: Icon(Icons.baby_changing_station, color: const Color(0xFFFF00BF), size: 28),
+                        icon: Icon(
+                          Icons.baby_changing_station,
+                          color: const Color(0xFFFF00BF),
+                          size: 28,
+                        ),
                       ),
                       const Spacer(),
 
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(999),
@@ -85,7 +88,7 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(width: 6),                          
+                            SizedBox(width: 6),
                           ],
                         ),
                       ),
@@ -116,7 +119,12 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                     height: buttonHeight,
                     child: ElevatedButton(
                       onPressed: () async {
-                        await Navigator.push(context, MaterialPageRoute(builder: (context) => PhoneLoginScreen()));
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhoneLoginScreen(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6B48FF),
@@ -159,5 +167,4 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
       ),
     );
   }
-
 }

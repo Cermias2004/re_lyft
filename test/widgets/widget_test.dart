@@ -160,9 +160,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: _MockScheduleIndicator(
-                scheduledTime: 'Mar 15, 2:30 PM',
-              ),
+              body: _MockScheduleIndicator(scheduledTime: 'Mar 15, 2:30 PM'),
             ),
           ),
         );

@@ -55,17 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Color(0xFF2D2D3A),
-                ],
+                colors: [Colors.transparent, Color(0xFF2D2D3A)],
                 stops: [0.2, 0.5],
               ),
             ),
           ),
           // Top layer: horizontal purple to pink
           Container(
-            height:200,
+            height: 200,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -101,10 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 16),
                         GestureDetector(
-                          onTap: () async { await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => DestinationSelectModal())
-                          );
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DestinationSelectModal(),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -139,11 +139,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                final time  = await Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => ScheduleAheadScreen())
+                                final time = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ScheduleAheadScreen(),
+                                  ),
                                 );
-                                if(time != null) await Navigator.push(context, MaterialPageRoute(builder: (context) => DestinationSelectModal(scheduleTime: time)));
+                                if (time != null)
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DestinationSelectModal(
+                                            scheduleTime: time,
+                                          ),
+                                    ),
+                                  );
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -153,7 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.transparent,
                                   borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: Colors.grey, width: 0.4),
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 0.4,
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -271,11 +285,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                 ),
               ),
-              if(!hasAddress)
-              Text(
-                'Add shortcut',
-                style: TextStyle(fontSize: 14, color: Colors.grey[400]),
-              ), 
+              if (!hasAddress)
+                Text(
+                  'Add shortcut',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                ),
             ],
           ),
         ],

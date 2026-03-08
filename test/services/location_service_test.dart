@@ -6,26 +6,29 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('LocationService', () {
     group('caching behavior', () {
-      test('cached position concept - returns same value on repeated calls', () {
-        // This tests the concept - actual implementation uses static cache
-        double? cachedLat;
-        double? cachedLng;
+      test(
+        'cached position concept - returns same value on repeated calls',
+        () {
+          // This tests the concept - actual implementation uses static cache
+          double? cachedLat;
+          double? cachedLng;
 
-        // Simulate first call - would get from GPS
-        cachedLat = 37.3382;
-        cachedLng = -121.8863;
+          // Simulate first call - would get from GPS
+          cachedLat = 37.3382;
+          cachedLng = -121.8863;
 
-        // Simulate second call - should return cached
-        final lat1 = cachedLat;
-        final lng1 = cachedLng;
+          // Simulate second call - should return cached
+          final lat1 = cachedLat;
+          final lng1 = cachedLng;
 
-        expect(lat1, 37.3382);
-        expect(lng1, -121.8863);
+          expect(lat1, 37.3382);
+          expect(lng1, -121.8863);
 
-        // Values should be identical (cached)
-        expect(lat1, cachedLat);
-        expect(lng1, cachedLng);
-      });
+          // Values should be identical (cached)
+          expect(lat1, cachedLat);
+          expect(lng1, cachedLng);
+        },
+      );
     });
 
     group('coordinate validation', () {

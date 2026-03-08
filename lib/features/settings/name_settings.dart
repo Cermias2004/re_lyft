@@ -29,14 +29,17 @@ class _NameSettingsState extends State<NameSettings> {
 
   void loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
     final userData = doc.data();
 
-    if(!mounted) return;
+    if (!mounted) return;
 
     _firstNameController.text = userData?['firstName'] ?? '';
     _lastNameController.text = userData?['lastName'] ?? '';
-    setState(() => isLoading=false);
+    setState(() => isLoading = false);
   }
 
   void _saveUserData() async {
@@ -45,113 +48,110 @@ class _NameSettingsState extends State<NameSettings> {
       'firstName': _firstNameController.text,
       'lastName': _lastNameController.text,
     }, SetOptions(merge: true));
-    if(!mounted) return;
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Wrap(
       children: [
-        if(isLoading)
-          Center(
-            child: CircularProgressIndicator(color: Color(0xFFFF00BF))
-          )
+        if (isLoading)
+          Center(child: CircularProgressIndicator(color: Color(0xFFFF00BF)))
         else
-        Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[600],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Change name',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _firstNameController,
-                  keyboardType: TextInputType.name,
-                  textCapitalization: TextCapitalization.words,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    hintText: 'first name',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
-                    border: InputBorder.none,
-                    icon: Icon(Icons.person, color: Colors.grey[800]),
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[600],
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _lastNameController,
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    hintText: 'last name',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
-                    border: InputBorder.none,
-                    icon: Icon(Icons.person, color: Colors.grey[800]),
+                const SizedBox(height: 20),
+                Text(
+                  'Change name',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveUserData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFF00BF),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 24),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextField(
+                    controller: _firstNameController,
+                    keyboardType: TextInputType.name,
+                    textCapitalization: TextCapitalization.words,
+                    style: TextStyle(color: Colors.black),
+                    decoration: InputDecoration(
+                      hintText: 'first name',
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      border: InputBorder.none,
+                      icon: Icon(Icons.person, color: Colors.grey[800]),
                     ),
                   ),
-                  child: Text(
-                    'Save',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextField(
+                    controller: _lastNameController,
+                    keyboardType: TextInputType.text,
+                    style: TextStyle(color: Colors.black),
+                    decoration: InputDecoration(
+                      hintText: 'last name',
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      border: InputBorder.none,
+                      icon: Icon(Icons.person, color: Colors.grey[800]),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveUserData,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFFF00BF),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
-        ),
-      ]
+      ],
     );
   }
-
-
-  
 }

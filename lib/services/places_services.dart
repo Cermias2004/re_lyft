@@ -83,14 +83,15 @@ class PlacesService {
         '?origin=$pickupLat,$pickupLng'
         '&destination=$destLat,$destLng'
         '&key=$_apiKey';
-    final url = Uri.parse('https://corsproxy.io/?${Uri.encodeComponent(googleUrl)}');
+    final url = Uri.parse(
+      'https://corsproxy.io/?${Uri.encodeComponent(googleUrl)}',
+    );
 
-    
     final response = await http.get(url);
-    if(response.statusCode != 200) return null;
-    
+    if (response.statusCode != 200) return null;
+
     final data = json.decode(response.body);
-    if(data['status'] != 'OK') return null;
+    if (data['status'] != 'OK') return null;
     final encodedPolyline = data['routes'][0]['overview_polyline']['points'];
 
     return decodePolyline(encodedPolyline);

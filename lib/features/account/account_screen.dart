@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
-  
+
   @override
   State<AccountScreen> createState() => _AccountScreenState();
 }
@@ -31,7 +31,7 @@ class _AccountScreenState extends State<AccountScreen> {
         .get();
     final userData = doc.data();
 
-    if(!mounted) return;
+    if (!mounted) return;
 
     setState(() {
       _firstName = userData?['firstName'] ?? '';
@@ -45,48 +45,68 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
       backgroundColor: Color(0xFF2D2D3A),
       body: SafeArea(
-        child: isLoading 
-          ? Center(child: CircularProgressIndicator(color: Color(0xFFFF00BF))) 
-          : SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                Stack(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator(color: Color(0xFFFF00BF)))
+            : SingleChildScrollView(
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[700],
-                      child: Icon(Icons.person, size: 50, color: Colors.white)
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFF7B61FF)
+                    const SizedBox(height: 24),
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[700],
+                          child: Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: Icon(Icons.camera_alt, size: 12, color: Colors.white)
-                      )
-                    )
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF7B61FF),
+                            ),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '$_firstName $_lastName',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Account'),
+                    _buildListTile(
+                      Icons.history,
+                      'Ride history',
+                      RideHistoryScreen(),
+                    ),
+                    _buildListTile(Icons.payment, 'Payments', PaymentScreen()),
+                    _buildListTile(Icons.help_outline, 'Help', HelpScreen()),
+                    _buildListTile(
+                      Icons.settings,
+                      'Settings',
+                      SettingsScreen(),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  '$_firstName $_lastName',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
-                ),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Account'),
-                _buildListTile(Icons.history, 'Ride history', RideHistoryScreen()),
-                _buildListTile(Icons.payment, 'Payments', PaymentScreen()),
-                _buildListTile(Icons.help_outline, 'Help', HelpScreen()),
-                _buildListTile(Icons.settings, 'Settings', SettingsScreen()),
-              ]
-            )
-          )
-      )
+              ),
+      ),
     );
   }
 
@@ -112,7 +132,7 @@ class _AccountScreenState extends State<AccountScreen> {
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => destination)
+          MaterialPageRoute(builder: (context) => destination),
         );
         _loadUserData();
       },
@@ -122,17 +142,10 @@ class _AccountScreenState extends State<AccountScreen> {
           children: [
             Icon(icon, color: Colors.grey[400], size: 24),
             const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
+            Text(label, style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
       ),
     );
   }
-
 }
